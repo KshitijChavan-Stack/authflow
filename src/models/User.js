@@ -79,9 +79,13 @@ userSchema.index({ email: 1 });
 userSchema.index({ createdAt: -1 });
 
 // Virtual for full name
+//It creates a virtual field called fullName which does NOT exist in the database,
+//but is computed automatically whenever you access it.
 userSchema.virtual('fullName').get(function () {
   return `${this.firstName} ${this.lastName}`;
 });
+
+//Virtual = fake field that is calculated on the fly; not stored in DB.
 
 // Check if account is locked
 userSchema.virtual('isLocked').get(function () {
