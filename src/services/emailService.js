@@ -171,8 +171,9 @@ class EmailService {
           </html>
         `,
       };
-
+      // transport object is of nodemailer
       await this.transporter.sendMail(mailOptions);
+      // this log is for us , to debug in future if needed
       logger.info(`Welcome email sent to ${email}`);
     } catch (error) {
       logger.error('Error sending welcome email:', error);
