@@ -1,5 +1,7 @@
 import Redis from 'ioredis';
 import logger from '../utils/logger.js';
+// This file is used for configuring and managing Redis connections.
+//Token blacklisting, rate limiting, caching
 
 let redisClient = null;
 
