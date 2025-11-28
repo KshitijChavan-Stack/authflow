@@ -37,7 +37,7 @@ const refreshTokenSchema = new mongoose.Schema(
 );
 
 // Indexes
-refreshTokenSchema.index({ token: 1 });
+// refreshTokenSchema.index({ token: 1 });
 refreshTokenSchema.index({ user: 1 });
 refreshTokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 

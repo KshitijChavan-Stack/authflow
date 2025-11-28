@@ -28,7 +28,7 @@ const emailVerificationSchema = new mongoose.Schema(
 );
 
 // Indexes
-emailVerificationSchema.index({ token: 1 });
+// emailVerificationSchema.index({ token: 1 });
 emailVerificationSchema.index({ user: 1 });
 emailVerificationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 

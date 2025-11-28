@@ -31,7 +31,7 @@ const passwordResetSchema = new mongoose.Schema(
 );
 
 // Indexes
-passwordResetSchema.index({ token: 1 });
+// passwordResetSchema.index({ token: 1 });
 passwordResetSchema.index({ user: 1 });
 passwordResetSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 

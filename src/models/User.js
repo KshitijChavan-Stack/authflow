@@ -75,7 +75,9 @@ const userSchema = new mongoose.Schema(
 );
 
 // Indexes
-userSchema.index({ email: 1 });
+// Causing the problem -> email has already unique: true, that gives the index to email
+//  and we again added index
+// userSchema.index({ email: 1 });
 userSchema.index({ createdAt: -1 });
 
 // Virtual for full name
