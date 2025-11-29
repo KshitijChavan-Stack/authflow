@@ -42,7 +42,7 @@ export const errorHandler = (err, req, res, next) => {
   }
 
   // Operational errors (AppError instances)
-  if (error.isOperational) {
+  if (err.isOperational) {
     return errorResponse(res, error.message, error.statusCode);
   }
 
