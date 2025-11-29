@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema(
     },
     firstName: {
       type: String,
-      required: [true, 'first name is required'],
+      required: [true, 'First name is required'],
       trim: true,
       maxlength: [50, 'First name cannot exceed 50 characters'],
     },
@@ -75,45 +75,46 @@ const userSchema = new mongoose.Schema(
 );
 
 // Indexes
-// Causing the problem -> email has already unique: true, that gives the index to email
-//  and we again added index
-// userSchema.index({ email: 1 });
+// Note: email already has unique: true, which automatically creates an index
+// userSchema.index({ email: 1 }); // Not needed - redundant
 userSchema.index({ createdAt: -1 });
 
 // Virtual for full name
-//It creates a virtual field called fullName which does NOT exist in the database,
-//but is computed automatically whenever you access it.
+// Virtual = fake field that is calculated on the fly; not stored in DB
+// It creates a virtual field called fullName which does NOT exist in the database,
+// but is computed automatically whenever you access it
 userSchema.virtual('fullName').get(function () {
   return `${this.firstName} ${this.lastName}`;
 });
 
-//Virtual = fake field that is calculated on the fly; not stored in DB.
-
 // Check if account is locked
+// Virtual field to check if lockUntil date is in the future
 userSchema.virtual('isLocked').get(function () {
   return !!(this.lockUntil && this.lockUntil > Date.now());
 });
 
-// Hash password before saving
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+// Hash password before saving (FIXED - Modern Mongoose syntax)
+// Mongoose pre-save hook that automatically hashes the password
+// Only runs if password is new or modified
+userSchema.pre('save', async function () {
+  // Skip if password hasn't been modified
+  if (!this.isModified('password')) return;
 
-  try {
-    const rounds = parseInt(process.env.BCRYPT_ROUNDS) || 12;
-    this.password = await bcrypt.hash(this.password, rounds);
-    next();
-  } catch (error) {
-    next(error);
-  }
+  // Hash the password with bcrypt
+  const rounds = parseInt(process.env.BCRYPT_ROUNDS) || 12;
+  this.password = await bcrypt.hash(this.password, rounds);
 });
 
 // Method to compare passwords
+// Instance method to verify if provided password matches hashed password
 userSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
 // Method to increment login attempts
+// Increments failed login attempts and locks account after 5 failed attempts
 userSchema.methods.incLoginAttempts = async function () {
+  // If lock has expired, reset attempts
   if (this.lockUntil && this.lockUntil < Date.now()) {
     return await this.updateOne({
       $set: { loginAttempts: 1 },
@@ -125,6 +126,7 @@ userSchema.methods.incLoginAttempts = async function () {
   const maxAttempts = 5;
   const lockTime = 2 * 60 * 60 * 1000; // 2 hours
 
+  // Lock account after max attempts
   if (this.loginAttempts + 1 >= maxAttempts && !this.isLocked) {
     updates.$set = { lockUntil: Date.now() + lockTime };
   }
@@ -133,6 +135,7 @@ userSchema.methods.incLoginAttempts = async function () {
 };
 
 // Method to reset login attempts
+// Resets login attempts to 0 and removes lock (called after successful login)
 userSchema.methods.resetLoginAttempts = async function () {
   return await this.updateOne({
     $set: { loginAttempts: 0 },
